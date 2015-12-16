@@ -8,7 +8,7 @@
 
 #import "JYSlideSegmentController.h"
 
-#define SEGMENT_BAR_HEIGHT (44)
+#define SEGMENT_BAR_HEIGHT (40)
 #define INDICATOR_HEIGHT (3)
 
 #define UIColorFromRGB(rgbValue) \
@@ -57,6 +57,8 @@ NSString * const segmentBarItemID = @"JYSegmentBarItem";
 @property (nonatomic, strong) UIView *indicator;
 @property (nonatomic, strong) UIView *indicatorBgView;
 @property (nonatomic, strong) UIView *separator;
+@property (nonatomic, strong) UIView *gradientView;
+@property (nonatomic, strong) UIButton *editButton;
 
 @property (nonatomic, strong) UICollectionViewFlowLayout *segmentBarLayout;
 
@@ -119,6 +121,9 @@ NSString * const segmentBarItemID = @"JYSegmentBarItem";
   }
   [self.view addSubview:self.segmentBar];
   [self.view addSubview:self.slideView];
+  [self.view addSubview:self.editButton];
+  [self.view addSubview:self.gradientView];
+
   [self.segmentBar registerClass:[JYSegmentBarItem class] forCellWithReuseIdentifier:segmentBarItemID];
   [self.segmentBar addSubview:self.indicatorBgView];
 
@@ -154,8 +159,9 @@ NSString * const segmentBarItemID = @"JYSegmentBarItem";
   if (!_segmentBar) {
     CGRect frame = self.view.bounds;
     frame.size.height = SEGMENT_BAR_HEIGHT;
+    frame.size.width = frame.size.width - self.editButtonWidth;
     _segmentBar = [[UICollectionView alloc] initWithFrame:frame collectionViewLayout:self.segmentBarLayout];
-    _segmentBar.backgroundColor = [UIColor whiteColor];
+    _segmentBar.backgroundColor = self.segmentBarColor ? : [UIColor whiteColor];
     _segmentBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     _segmentBar.delegate = self;
     _segmentBar.dataSource = self;
@@ -164,6 +170,45 @@ NSString * const segmentBarItemID = @"JYSegmentBarItem";
     _segmentBar.scrollsToTop = NO;
   }
   return _segmentBar;
+}
+
+- (UIView *)gradientView
+{
+  if (!_gradientView) {
+    CGRect frame = CGRectMake(self.view.frame.size.width -
+                                  self.editButtonWidth - SEGMENT_BAR_HEIGHT,
+                              0, SEGMENT_BAR_HEIGHT, SEGMENT_BAR_HEIGHT);
+    _gradientView = [[UIView alloc] initWithFrame:frame];
+    CAGradientLayer *gradientLayer = [CAGradientLayer layer];
+    gradientLayer.frame = _gradientView.bounds;
+    gradientLayer.startPoint = CGPointMake(0.0, 0.5);
+    gradientLayer.endPoint = CGPointMake(1.0, 0.5);
+    gradientLayer.colors = [NSArray
+        arrayWithObjects:(id)[self.segmentBarColor colorWithAlphaComponent:0.0f]
+                             .CGColor,
+                         (id)[self.segmentBarColor colorWithAlphaComponent:1.0f]
+                             .CGColor,
+                         nil];
+    gradientLayer.opacity = 100.0;
+    [_gradientView.layer insertSublayer:gradientLayer atIndex:0];
+  }
+  return _gradientView;
+}
+
+- (UIButton *)editButton
+{
+  if (!_editButton) {
+    CGRect frame = CGRectMake(self.view.frame.size.width - self.editButtonWidth,
+                              0, self.editButtonWidth, SEGMENT_BAR_HEIGHT);
+    _editButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _editButton.frame = frame;
+    _editButton.tintColor = self.editButtonTintColor ? : [UIColor grayColor];
+    _editButton.backgroundColor = self.segmentBarColor ? : [UIColor whiteColor];
+    UIImage *editIcon = [[UIImage imageNamed:@"toolbar_icon_grouping"]
+        imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [_editButton setImage:editIcon forState:UIControlStateNormal];
+  }
+  return _editButton;
 }
 
 - (UIView *)indicatorBgView
@@ -199,6 +244,14 @@ NSString * const segmentBarItemID = @"JYSegmentBarItem";
   return _indicatorHeight;
 }
 
+- (CGFloat)editButtonWidth
+{
+  if (!_editButtonWidth) {
+    _editButtonWidth = SEGMENT_BAR_HEIGHT;
+  }
+  return _editButtonWidth;
+}
+
 - (CGFloat)itemWidth
 {
   if (!_itemWidth) {
@@ -221,6 +274,19 @@ NSString * const segmentBarItemID = @"JYSegmentBarItem";
 {
   _indicatorColor = indicatorColor;
   _indicator.backgroundColor = _indicatorColor;
+}
+
+- (void)setSegmentBarColor:(UIColor *)segmentBarColor
+{
+    _segmentBarColor = segmentBarColor;
+    _segmentBar.backgroundColor = _segmentBarColor;
+    _editButton.backgroundColor = _segmentBarColor;
+}
+
+- (void)setEditButtonTintColor:(UIColor *)editButtonTintColor
+{
+    _editButtonTintColor = editButtonTintColor;
+    _editButton.tintColor = _editButtonTintColor;
 }
 
 - (UIColor *)separatorColor

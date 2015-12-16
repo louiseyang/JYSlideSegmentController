@@ -57,6 +57,9 @@ extern NSString *const segmentBarItemID;
 @property (nonatomic, assign) CGFloat indicatorHeight;
 @property (nonatomic, assign) UIEdgeInsets indicatorInsets;
 @property (nonatomic, strong) UIColor *separatorColor;
+@property (nonatomic, strong) UIColor *editButtonTintColor;
+@property (nonatomic, assign) CGFloat editButtonWidth;
+@property (nonatomic, strong) UIColor *segmentBarColor;
 
 /**
  *  By default segmentBar use viewController's title for segment's button title
