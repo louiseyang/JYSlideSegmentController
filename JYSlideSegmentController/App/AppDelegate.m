@@ -32,8 +32,18 @@
   self.slideSegmentController.indicatorInsets = UIEdgeInsetsMake(0, 8, 0, 8);
   self.slideSegmentController.indicatorColor = [UIColor redColor];
   self.slideSegmentController.itemWidth = 80;
-  UINavigationController *navi = [[UINavigationController alloc] initWithRootViewController:self.slideSegmentController];
-  self.window.rootViewController = navi;
+    UIViewController *placeholder = [[UIViewController alloc]init];
+    CGRect frame = self.window.bounds;
+    frame.origin.y = 64;
+    placeholder.view.frame = frame;
+    UINavigationController *navi = [[UINavigationController alloc] initWithRootViewController:placeholder];
+//    UINavigationController *navi = [[UINavigationController alloc] initWithRootViewController:self.slideSegmentController];
+    self.window.rootViewController = navi;
+    
+    [placeholder addChildViewController:self.slideSegmentController];
+    self.slideSegmentController.view.frame = placeholder.view.frame;
+    [placeholder.view addSubview:self.slideSegmentController.view];
+    [self.slideSegmentController didMoveToParentViewController:placeholder];
 
   UIBarButtonItem *changeVCsItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh
                                                                                  target:self
